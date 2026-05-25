@@ -219,23 +219,9 @@ def merge_hidden_states(base_path, dataset_name, model_file_name):
     if not hs_files:
         raise FileNotFoundError("No hidden states files found")
 
-    if safe_file and os.path.exists(safe_file):
-        for hs_file in hs_files:
-            category = (
-                os.path.basename(hs_file)
-                .replace("hidden_states_", "")
-                .replace(".pth", "")
-            )
-            merge_hidden_states_data(
-                hs_files=[hs_file, safe_file],
-                save_name=f"balanced_hidden_states_{category}.pth",
-                balance_data=True,
-            )
-    else:
-        print(f"Warning: Safe category file not found - {safe_file}")
-
     # Merge all files
     if hs_files:
+        hs_files.append(safe_file)
         merge_hidden_states_data(
             hs_files=hs_files,
             save_name="all_hidden_states.pth",

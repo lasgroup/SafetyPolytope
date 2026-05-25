@@ -17,6 +17,10 @@ def get_model_name(model_path: str) -> str:
         return "llama2-7b"
     elif "Qwen2-1.5B" in model_path:
         return "qwen2-1.5b"
+    elif "Llama-3.1-8B" in model_path:
+        return "llama3-8b"
+    elif "Qwen3-8B" in model_path:
+        return "qwen3-8b"
     else:
         raise NotImplementedError(
             f"Please manually configure a model name for {model_path}."
@@ -109,13 +113,17 @@ def run_polytope_training(
 
 def save_hidden_states(args, categories: List[str], data_path: str):
     """Save hidden states for categories either sequentially or using slurm."""
+    layer_number = args.layer_number
+    
     base_cmd = [
         "python",
         "src/safety_polytope/data/save_hs.py",
         f"dataset={args.dataset}",
+        f"layer_number={layer_number}",
         f"model_path={args.model_path}",
         "exp_ident=save_beaver_states",
         f"save_hs_root_dir={data_path}",
+        "hydra.job.chdir=False"
     ]
 
     # Add total_datapoints parameter if using reduced data
@@ -151,6 +159,12 @@ def main():
         type=str,
         required=True,
         help="Path to the model, e.g., Qwen/Qwen2-1.5B-Instruct",
+    )
+    parser.add_argument(
+        "--layer_number",
+        type=int,
+        required=True,
+        help="Layer number to extract hidden states from",
     )
     parser.add_argument(
         "--dataset",
@@ -189,7 +203,7 @@ def main():
     # Get model name
     model_name = get_model_name(args.model_path)
 
-    data_path = os.path.join(args.base_path, "data")
+    data_path = os.path.join(args.base_path, "hs_data")
 
     if not args.skip_hs_generation:
         print("Starting hidden states generation...")
@@ -206,14 +220,14 @@ def main():
 
     # Run polytope training
     print("Starting polytope training...")
-    run_polytope_training(
-        data_path,
-        model_name,
-        categories[:-1],  # Exclude the last category (safety)
-        args.mode,
-        args.dataset,
-        args.model_path,
-    )
+    # run_polytope_training(
+    #     data_path,
+    #     model_name,
+    #     categories[:-1],  # Exclude the last category (safety)
+    #     args.mode,
+    #     args.dataset,
+    #     args.model_path,
+    # )
 
 
 if __name__ == "__main__":

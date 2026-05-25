@@ -14,7 +14,7 @@ use_raw_violations: true
 temperature: 1000
 cat_data_path: None
 save_cat_data_path: ${hydra:runtime.cwd}/data/mi_data/mi_ce_data.pth
-save_hs_root_dir: ${hydra:runtime.cwd}/data/
+save_hs_root_dir: ${hydra:runtime.cwd}/hs_data/
 
 hydra:
   run:
@@ -31,7 +31,7 @@ hydra:
     nodes: 1
     name: ${exp_ident}
     _target_: hydra_plugins.hydra_submitit_launcher.submitit_launcher.SlurmLauncher
-    additional_parameters: {"gpus": "titan_rtx:1"}
+    additional_parameters: {"gpus": "titan_rtx:1", "account": "ls_krausea"}
     mem_per_cpu: 128G
     setup:
       - '#SBATCH --requeue'

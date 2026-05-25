@@ -82,6 +82,10 @@ def main(cfg: DictConfig):
         model_name = "llama2-7b"
     elif "Qwen2-1.5B" in cfg.model_path:
         model_name = "qwen2-1.5b"
+    elif "Llama-3.1-8B" in cfg.model_path:
+        model_name = "llama3-8b"
+    elif "Qwen3-8B" in cfg.model_path:
+        model_name = "qwen3-8b"
     else:
         raise NotImplementedError(
             f"Please mannually configure a model name for {cfg.model_path}."

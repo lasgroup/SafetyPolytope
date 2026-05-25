@@ -34,11 +34,15 @@ def load_model_and_tokenizer(model_path, **kwargs):
         model_path,
         # use_fast=False, padding_side="left", padding="max_length"
     )
-    tokenizer.pad_token = (
-        tokenizer.unk_token
-        if tokenizer.pad_token is None
-        else tokenizer.pad_token
-    )
+    # FIXED: Handle cases where both pad_token and unk_token are None
+    if tokenizer.pad_token is None:
+        if tokenizer.unk_token is not None:
+            tokenizer.pad_token = tokenizer.unk_token
+        elif tokenizer.eos_token is not None:
+            tokenizer.pad_token = tokenizer.eos_token
+        else:
+            # Last resort: add a new pad token
+            tokenizer.add_special_tokens({'pad_token': '[PAD]'})
     model.generation_config.pad_token_id = tokenizer.pad_token_id
     return model, tokenizer
 
